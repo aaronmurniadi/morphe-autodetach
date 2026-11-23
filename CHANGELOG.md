@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.1
+
+- Documentation fixes only. No behaviour change.
+- README: `Build from source` is its own section again.
+- README: the sample log shows both engine lines, bundled and installed `zygisk-detach`.
+- README: uninstall note covers the restored `zygisk-detach` list.
+
 ## v1.2.0
 
 - An installed and enabled `zygisk-detach` module is used instead of the bundled engine. The installer drops the bundled `zygisk` and `bin` files then, so only one hook runs on Play Store.

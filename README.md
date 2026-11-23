@@ -54,7 +54,7 @@ Nothing to do. The installer detects `/data/adb/modules/zygisk-detach`, keeps it
 
 A `zygisk-detach` module that is disabled or marked for removal does not count. The installer keeps the bundled engine in that case.
 
-Build the zip yourself:
+### Build from source
 
 ```sh
 ./build.sh
@@ -96,7 +96,7 @@ su -c cat /data/adb/modules/morphe-autodetach/detach.log
 A healthy run looks like this:
 
 ```
-engine: /data/adb/modules/morphe-autodetach/bin/arm64/detach
+engine: /data/adb/modules/morphe-autodetach/bin/arm64/detach (bundled)
 packages: com.google.android.apps.youtube.music com.google.android.youtube
   'com.google.android.apps.youtube.music'
   'com.google.android.youtube'
@@ -104,12 +104,18 @@ Serialized detach.txt
 updated detach.bin, 2 package(s) detached
 ```
 
+With an installed `zygisk-detach` module the first line reads:
+
+```
+engine: /data/adb/modules/zygisk-detach/detach (installed zygisk-detach module)
+```
+
 ## Re-attach an app
 
 1. Add the package to `skip.txt`, then run `detach.sh`. To re-attach everything, remove the module.
 2. Reboot, or force-stop Play Store, so it loads the new list.
 
-Removing the module also clears the engine list. The uninstall script handles that.
+Removing the module clears the engine list. The uninstall script handles that. When a `zygisk-detach` module is present, the uninstall script restores the list that module had before this module replaced it.
 
 ## Troubleshooting
 

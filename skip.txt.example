@@ -1,0 +1,5 @@
+# Packages to keep attached to Play Store, one per line.
+# "#" starts a comment.
+# Use this to let Play Store update an app that Morphe does mount.
+#
+# com.google.android.apps.youtube.music

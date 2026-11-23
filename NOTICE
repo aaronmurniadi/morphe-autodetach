@@ -1,0 +1,26 @@
+morphe-autodetach
+Copyright 2026 aaronmurniadi
+
+This module bundles the detach engine from zygisk-detach.
+
+--------------------------------------------------------------------------------
+Vendored component: zygisk-detach
+Source:      https://github.com/j-hc/zygisk-detach
+Author:      j-hc (https://github.com/j-hc)
+License:     Apache License 2.0 (see LICENSE-Apache-2.0)
+Version:     pinned in build.sh as ZD_VERSION
+Files:       zygisk/<abi>.so      Zygisk hook injected into com.android.vending
+             bin/<arch>/detach    CLI that serializes the package list
+             bin/<arch>/ksu_profile
+
+The bundled binaries are not modified. They are copied from the official
+zygisk-detach release zip at build time and packed into this module.
+
+What this module adds:
+  - Detection of Morphe root-mount modules (/data/adb/modules/*-morphe)
+  - List merge with detach.txt and skip.txt
+  - Serialization and install of the engine list on install and on every boot
+  - Zygisk and conflict checks in the installer
+
+--------------------------------------------------------------------------------
+Everything else in this repository is MIT licensed. See LICENSE.

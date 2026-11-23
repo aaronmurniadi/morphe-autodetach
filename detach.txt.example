@@ -1,0 +1,6 @@
+# Extra packages to detach from Play Store, one per line.
+# "#" starts a comment.
+# The Morphe root-mount apps are detected automatically. Add a package here
+# only when you want to detach an app that Morphe does not mount.
+#
+# com.example.someapp

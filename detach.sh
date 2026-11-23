@@ -11,6 +11,7 @@ LOG=$MODDIR/detach.log
 DATA=/data/adb/zygisk-detach
 BIN=$DATA/detach.bin
 LIST=$DATA/autodetach.txt
+BACKUP=$DATA/detach.bin.before-morphe-autodetach
 TMPDIR=/data/local/tmp/morphe-autodetach.$$
 PKGS=$TMPDIR/pkgs
 
@@ -26,24 +27,47 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# 1. Pick the engine binary for this CPU.
-case "$(getprop ro.product.cpu.abi)" in
-	arm64-v8a) ARCH=arm64 ;;
-	armeabi-v7a | armeabi) ARCH=arm ;;
-	x86_64) ARCH=x64 ;;
-	x86) ARCH=x86 ;;
-	*)
-		log "ERROR: unsupported CPU: $(getprop ro.product.cpu.abi)"
-		exit 1
-		;;
-esac
+# 1. Pick the engine.
+#
+# A zygisk-detach module that is installed and enabled wins over the bundled
+# engine. Two hooks on the same Play Store are wasteful and hard to debug, so
+# the installer drops the bundled files in that case as well.
+ZD_MOD=/data/adb/modules/zygisk-detach
+EXTERNAL=0
+ENGINE=
 
-ENGINE=$MODDIR/bin/$ARCH/detach
-if [ ! -x "$ENGINE" ]; then
-	log "ERROR: engine binary missing: $ENGINE"
-	exit 1
+if [ -x "$ZD_MOD/detach" ] && [ ! -f "$ZD_MOD/disable" ] && [ ! -f "$ZD_MOD/remove" ]; then
+	ENGINE=$ZD_MOD/detach
+	EXTERNAL=1
+	log "engine: $ENGINE (installed zygisk-detach module)"
+else
+	case "$(getprop ro.product.cpu.abi)" in
+		arm64-v8a) ARCH=arm64 ;;
+		armeabi-v7a | armeabi) ARCH=arm ;;
+		x86_64) ARCH=x64 ;;
+		x86) ARCH=x86 ;;
+		*)
+			log "ERROR: unsupported CPU: $(getprop ro.product.cpu.abi)"
+			exit 1
+			;;
+	esac
+
+	ENGINE=$MODDIR/bin/$ARCH/detach
+	if [ ! -x "$ENGINE" ]; then
+		log "ERROR: engine binary missing: $ENGINE"
+		log "Flash the release zip, or run ./build.sh and flash the fresh output"
+		exit 1
+	fi
+	log "engine: $ENGINE (bundled)"
 fi
-log "engine: $ENGINE"
+
+# 1a. An installed zygisk-detach module keeps its own package list. Save that
+#     list once, before this module writes its own. The uninstall script puts
+#     it back.
+if [ "$EXTERNAL" = "1" ] && [ -s "$BIN" ] && [ ! -f "$BACKUP" ]; then
+	cp -f "$BIN" "$BACKUP"
+	log "backed up the existing list to $BACKUP"
+fi
 
 # 2. Collect the packages to detach.
 : >"$PKGS"

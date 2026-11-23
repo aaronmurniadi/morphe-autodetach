@@ -1,7 +1,7 @@
 id=morphe-autodetach
 name=Morphe Auto-Detach
-version=v1.1.0
-versionCode=10100
+version=v1.2.0
+versionCode=10200
 author=aaronmurniadi
-description=Keeps every Morphe root-mount app detached from Google Play Store, so Play cannot replace the patched APK. One module: the detach engine is bundled, no second module to install.
+description=Keeps every Morphe root-mount app detached from Google Play Store, so Play cannot replace the patched APK. Uses an installed zygisk-detach module when present, otherwise its own bundled engine.
 updateJson=https://raw.githubusercontent.com/aaronmurniadi/morphe-autodetach/main/update.json

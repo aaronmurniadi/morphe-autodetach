@@ -6,6 +6,8 @@ A Magisk / KernelSU module that keeps every [Morphe](https://morphe.software) ro
 
 One zip. No second module to install. Nothing to configure.
 
+If you already run a `zygisk-detach` module, this module finds it and uses its engine instead of the bundled one.
+
 ## The problem
 
 Morphe can install a patched app with **Root mount**. Root mount does not install the patched APK. It bind-mounts the patched APK over the stock app. Android keeps the stock package, the stock signature and the stock data directory.
@@ -27,13 +29,15 @@ A small Zygisk engine inside Play Store does the filtering. On every boot the mo
 
 The engine comes from [zygisk-detach](https://github.com/j-hc/zygisk-detach) by [j-hc](https://github.com/j-hc). It is fetched from the official release at build time and packed into this module. See [NOTICE](NOTICE).
 
+An installed `zygisk-detach` module takes precedence. In that case the installer deletes the bundled engine files from this module, so only one hook runs on Play Store. Before this module replaces the `zygisk-detach` package list, it saves that list to `/data/adb/zygisk-detach/detach.bin.before-morphe-autodetach`. Removing this module puts the saved list back.
+
 ## Requirements
 
 - Android 8 or newer, rooted.
 - Magisk 20.4 or newer with **Zygisk enabled**, or KernelSU / APatch with **Zygisk Next**.
 - Morphe app installed with the **Root mount** installer.
 
-The installer stops with a clear message when Zygisk is off, or when a separate `zygisk-detach` module is present.
+The installer stops with a clear message when Zygisk is off.
 
 ## Install
 
@@ -43,6 +47,12 @@ The installer stops with a clear message when Zygisk is off, or when a separate 
 4. Reboot.
 
 The installer writes the detach list at once and the module refreshes it on every boot.
+
+### If you already use zygisk-detach
+
+Nothing to do. The installer detects `/data/adb/modules/zygisk-detach`, keeps its engine running, and removes the bundled engine from this module. The directory `/data/adb/modules/morphe-autodetach` then has no `zygisk` and no `bin` directory. That is expected.
+
+A `zygisk-detach` module that is disabled or marked for removal does not count. The installer keeps the bundled engine in that case.
 
 Build the zip yourself:
 
@@ -106,7 +116,7 @@ Removing the module also clears the engine list. The uninstall script handles th
 | Symptom | Cause and fix |
 | --- | --- |
 | Installer stops with `Zygisk is disabled` | Turn on Zygisk in Magisk settings, reboot, flash again |
-| Installer stops with `zygisk-detach is installed` | Remove that module, reboot, flash again. This module already contains its engine |
+| Installer says `Using its engine, dropping the bundled one` | A `zygisk-detach` module is installed. This module uses it on purpose. Move the apps back to the bundled engine by removing `zygisk-detach`, then reflashing this zip |
 | Play Store still shows `Update` | Confirm Zygisk is on, then check that `com.android.vending` is not in the Magisk denylist or in an app-hiding exclusion list. Reboot |
 | `ERROR: engine binary missing` | The zip was unpacked by hand. Flash the release zip, or run `./build.sh` and flash the fresh output |
 | A patched app stopped working after a Play Store update | The update got through before the module was active. Reinstall the matching stock version and remount in Morphe |

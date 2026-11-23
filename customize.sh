@@ -4,6 +4,12 @@
 # $MODPATH is the staging directory. $NVBASE is /data/adb. $MODID is this
 # module id. All three are set by the installer.
 
+# Magisk and KernelSU both export these. Default them anyway: a missing
+# NVBASE silently redirects the checks below to /modules, and the module then
+# keeps files it should drop.
+: "${NVBASE:=/data/adb}"
+: "${MODID:=morphe-autodetach}"
+
 chmod -R 755 "$MODPATH/bin"
 
 # Keep the user files across a module update.
@@ -29,11 +35,15 @@ if [ "$ZYGISK" = "0" ]; then
 ! Enable Zygisk in Magisk settings, reboot, then flash again"
 fi
 
-# Two hooks on the same Play Store is a conflict, not a feature.
-if [ -d "$NVBASE/modules/zygisk-detach" ]; then
-	abort "! zygisk-detach is installed
-! This module already bundles that engine
-! Remove the zygisk-detach module, reboot, then flash again"
+# An installed and enabled zygisk-detach module wins over the bundled engine.
+# Drop the bundled engine files then, so only one hook runs on Play Store.
+ZD_MOD=$NVBASE/modules/zygisk-detach
+if [ -x "$ZD_MOD/detach" ] && [ ! -f "$ZD_MOD/disable" ] && [ ! -f "$ZD_MOD/remove" ]; then
+	ui_print "- zygisk-detach module found"
+	ui_print "- Using its engine, dropping the bundled one"
+	rm -rf "$MODPATH/zygisk" "$MODPATH/bin"
+else
+	ui_print "- Using the bundled engine"
 fi
 
 ui_print "- Detaching now"

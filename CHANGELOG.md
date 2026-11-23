@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0
+
+- An installed and enabled `zygisk-detach` module is used instead of the bundled engine. The installer drops the bundled `zygisk` and `bin` files then, so only one hook runs on Play Store.
+- The `zygisk-detach` package list is saved to `/data/adb/zygisk-detach/detach.bin.before-morphe-autodetach` before this module replaces it. Uninstalling this module restores that list.
+- A `zygisk-detach` module that is disabled or marked for removal is ignored.
+
 ## v1.1.0
 
 - Detach engine bundled. One module, no separate `zygisk-detach` install.
